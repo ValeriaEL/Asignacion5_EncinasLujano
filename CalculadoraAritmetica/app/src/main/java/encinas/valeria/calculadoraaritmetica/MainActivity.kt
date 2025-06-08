@@ -43,43 +43,45 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun cambiarOperador(b: View) {
-        if (numTemporal.text.isEmpty() || primerNum.toString() != "NaN") {
-            calcular()
-            val boton: Button = b as Button
-            if (boton.text.toString().trim() == "÷") {
-                operacionActual = "/"
-            } else if (boton.text.toString().trim() == "X") {
-                operacionActual = "*"
-            } else {
-                operacionActual = boton.text.toString().trim()
-            }
-            resultado.text = formatoDecimal.format(primerNum) + operacionActual
-            numTemporal.text = ""
+        val boton: Button = b as Button
+        val operadorTexto = when (boton.text.toString().trim()) {
+            "÷" -> "/"
+            "X" -> "*"
+            else -> boton.text.toString().trim()
         }
+
+        if (!numTemporal.text.isNullOrEmpty()) {
+            calcular()
+        }
+        operacionActual = operadorTexto
+        resultado.text = formatoDecimal.format(primerNum) + operacionActual
+        numTemporal.text = ""
     }
 
     fun calcular(){
-       try {
-           if (primerNum.toString() != "NaN"){
-               if (numTemporal.text.toString().isEmpty()){
-                   numTemporal.text = resultado.text.toString()
-               }
-               segundoNum = numTemporal.text.toString().toDouble()
-               numTemporal.text = ""
+        try {
+            if (!primerNum.isNaN()) {
+                if (numTemporal.text.toString().isNotEmpty()) {
+                    segundoNum = numTemporal.text.toString().toDouble()
+                    numTemporal.text = ""
 
-               when (operacionActual){
-                   "+" -> primerNum = (primerNum + segundoNum)
-                   "-" -> primerNum = (primerNum - segundoNum)
-                   "*" -> primerNum = (primerNum * segundoNum)
-                   "/" -> primerNum = (primerNum / segundoNum)
-                   "%" -> primerNum = (primerNum % segundoNum)
-               }
-           } else {
-               primerNum = numTemporal.text.toString().toDouble()
-           }
-       }catch (e:Exception){
+                    when (operacionActual) {
+                        "+" -> primerNum += segundoNum
+                        "-" -> primerNum -= segundoNum
+                        "*" -> primerNum *= segundoNum
+                        "/" -> primerNum /= segundoNum
+                        "%" -> primerNum %= segundoNum
+                    }
+                }
+            } else if(numTemporal.text.toString().isNotEmpty()) {
+                    primerNum = numTemporal.text.toString().toDouble()
+                    numTemporal.text = ""
+                }
 
-       }
+        } catch (e: Exception) {
+            resultado.text = "Error"
+        }
+
     }
 
     fun seleccionarNumero(b: View){
@@ -90,7 +92,11 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     fun igual(b: View){
         calcular()
-        resultado.text = formatoDecimal.format((primerNum))
+        if (!primerNum.isNaN()) {
+            resultado.text = formatoDecimal.format(primerNum)
+        } else {
+            resultado.text = "Error"
+        }
         operacionActual = ""
     }
 
